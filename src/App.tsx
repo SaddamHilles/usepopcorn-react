@@ -76,6 +76,14 @@ function App() {
     const [error, setError] = useState<string | null>(null);
     const [selectedId, setSelectedId] = useState('');
 
+    function handleSelectedId(id: string){
+        setSelectedId(prev => prev === id ? '' : id)
+    }
+
+    function handleCloseMovie(){
+        setSelectedId('')
+    }
+
     useEffect(() => {
         const fetchMovies = async () => {
             try {
@@ -122,13 +130,13 @@ function App() {
                     {!isLoading && !error && (
                         <MoviesList
                             movies={movies}
-                            setSelectedId={setSelectedId}
+                            onSelectedId={handleSelectedId}
                         />
                     )}
                 </Box>
                 <Box>
                     {selectedId ? (
-                        <MovieDetails selectedId={selectedId} />
+                        <MovieDetails selectedId={selectedId} onCloseMovie={handleCloseMovie} />
                     ) : (
                         <>
                             <WatchedSummary watched={watched} />
