@@ -1,15 +1,16 @@
+import { WatchedMovieData } from '../types';
 import WatchedMovie from './WatchedMovie';
-import { Watched } from '../types';
 
 interface Props {
-  watched: Watched[];
+  watched: WatchedMovieData[];
+  onDeleteWatched: (id: string) => void;
 }
 
-const WatchedList = ({ watched }: Props) => {
+const WatchedList = ({ watched, onDeleteWatched }: Props) => {
   return (
     <ul className='list'>
       {watched.map(movie => (
-        <WatchedMovie key={movie.imdbID} movie={movie} />
+        <WatchedMovie key={movie.imdbID} movie={movie} onDeleteWatched={onDeleteWatched} />
       ))}
     </ul>
   );

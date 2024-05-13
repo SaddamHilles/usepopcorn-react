@@ -5,12 +5,12 @@ export type Movies = {
   Poster: string;
 };
 
-export type Watched = {
+export interface WatchedMovieData {
   imdbID: string;
   Title: string;
   Year: string;
   Poster: string;
-  runtime: number;
-  imdbRating: number;
+  runtime: string;
+  imdbRating: string;
   userRating: number;
-};
+}

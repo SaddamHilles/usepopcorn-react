@@ -14,6 +14,7 @@ import ErrorMessage from './components/ErrorMessage';
 import Search from './components/Search';
 import MovieDetails from './components/MovieDetails';
 import { OMDB_API_KEY } from './utils/apiKeys';
+import { WatchedMovieData } from './types';
 
 const tempMovieData = [
     {
@@ -36,17 +37,7 @@ const tempMovieData = [
     },
 ];
 
-interface WatchedData {
-    imdbID: string;
-    Title: string;
-    Year: string;
-    Poster: string;
-    runtime: number;
-    imdbRating: number;
-    userRating: number;
-}
-
-const tempWatchedData: WatchedData[] = [
+const tempWatchedData = [
     {
         imdbID: 'tt1375666',
         Title: 'Inception',
@@ -67,21 +58,40 @@ const tempWatchedData: WatchedData[] = [
     },
 ];
 
-
 function App() {
-    const [query, setQuery] = useState('');
+    const [query, setQuery] = useState('interstellar');
     const [movies, setMovies] = useState(tempMovieData);
-    const [watched, setWatched] = useState(tempWatchedData);
+    const [watched, setWatched] = useState<WatchedMovieData[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [selectedId, setSelectedId] = useState('');
 
-    function handleSelectedId(id: string){
-        setSelectedId(prev => prev === id ? '' : id)
+    function handleSelectedId(id: string) {
+        setSelectedId(prev => (prev === id ? '' : id));
     }
 
-    function handleCloseMovie(){
-        setSelectedId('')
+    function handleCloseMovie() {
+        setSelectedId('');
+    }
+
+    function handleAddWatched(movie: WatchedMovieData): number {
+        const isAleardyWached = watched.some(
+            item => item.imdbID === movie.imdbID
+        );
+        if (isAleardyWached) {
+            alert('This movie is Already Selected!');
+            return -1;
+        } else {
+            setWatched(prev => [...prev, movie]);
+            return 1;
+        }
+    }
+
+    function handleDeleteWatched(id: string) {
+        const filteredWatchedMovies = watched.filter(
+            movie => movie.imdbID !== id
+        );
+        setWatched(filteredWatchedMovies);
     }
 
     useEffect(() => {
@@ -109,11 +119,11 @@ function App() {
             }
         };
 
-        // if(query.length < 3){
-        //   setError(null);
-        //   setMovies([])
-        //   return;
-        // }
+        if (query.length < 3) {
+            setError(null);
+            setMovies([]);
+            return;
+        }
         fetchMovies();
     }, [query]);
     return (
@@ -136,11 +146,19 @@ function App() {
                 </Box>
                 <Box>
                     {selectedId ? (
-                        <MovieDetails selectedId={selectedId} onCloseMovie={handleCloseMovie} />
+                        <MovieDetails
+                            selectedId={selectedId}
+                            onCloseMovie={handleCloseMovie}
+                            onAddWatched={handleAddWatched}
+                            watched={watched}
+                        />
                     ) : (
                         <>
                             <WatchedSummary watched={watched} />
-                            <WatchedList watched={watched} />
+                            <WatchedList
+                                watched={watched}
+                                onDeleteWatched={handleDeleteWatched}
+                            />
                         </>
                     )}
                 </Box>

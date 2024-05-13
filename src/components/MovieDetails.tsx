@@ -4,10 +4,13 @@ import axios from 'axios';
 import { Rating } from 'react-simple-star-rating';
 import StarRating from './starRating/StarRating';
 import Loader from './Loader';
+import { WatchedMovieData } from '../types';
 
 interface Props {
     selectedId: string;
+    watched: WatchedMovieData[];
     onCloseMovie: () => void;
+    onAddWatched: (movie: WatchedMovieData) => number;
 }
 
 interface MovieData {
@@ -41,9 +44,40 @@ interface MovieData {
     Response: string;
 }
 
-const MovieDetails = ({ selectedId, onCloseMovie }: Props) => {
+const MovieDetails = ({
+    selectedId,
+    onCloseMovie,
+    onAddWatched,
+    watched,
+}: Props) => {
     const [movie, setMovie] = useState<MovieData>();
     const [isLoading, setIsLoading] = useState(false);
+    const [userRating, setUserRating] = useState(0);
+
+    function handleAdd() {
+        const newWatchedMovie: WatchedMovieData = {
+            imdbID: movie?.imdbID || '',
+            imdbRating: movie?.imdbRating.split(' ')[0] || '',
+            Poster: movie?.Poster || '',
+            runtime: movie?.Runtime || '',
+            Title: movie?.Title || '',
+            userRating: userRating,
+            Year: movie?.Year || '',
+        };
+        const op = onAddWatched(newWatchedMovie);
+        if (op === -1) {
+            return;
+        } else {
+            onCloseMovie();
+        }
+    }
+
+    function handleUserRating(rating: number) {
+        setUserRating(rating);
+    }
+
+    const isWatched = watched.find(movie => movie.imdbID === selectedId);
+
     useEffect(() => {
         const fetchMovieDetails = async () => {
             try {
@@ -97,9 +131,49 @@ const MovieDetails = ({ selectedId, onCloseMovie }: Props) => {
                         </div>
                     </header>
                     <section>
-                        <div className="rating">
-                            <StarRating size={24} starsCount={10} />
-                        </div>
+                        {!isWatched ? (
+                            <div className="rating">
+                                <StarRating
+                                    size={24}
+                                    starsCount={10}
+                                    onUserRating={handleUserRating}
+                                    userRating={userRating}
+                                />
+                                <button
+                                    className="btn-add"
+                                    onClick={handleAdd}
+                                    disabled={!userRating}
+                                    style={{
+                                        cursor: userRating
+                                            ? 'pointer'
+                                            : 'default',
+                                        backgroundColor: !userRating
+                                            ? 'gray'
+                                            : '',
+                                    }}>
+                                    + Addto list
+                                </button>
+                            </div>
+                        ) : (
+                            <p
+                                style={{
+                                    margin: 'auto',
+                                    color: 'green',
+                                    fontWeight: 'bold',
+                                    backgroundColor: 'whitesmoke',
+                                    borderRadius: '8px',
+                                    padding: '1rem 2rem'
+                                }}>
+                                You rated this movie{' '}
+                                <span
+                                    style={{
+                                        color: 'gold',
+                                        marginLeft: '0.6rem',
+                                    }}>
+                                    {isWatched.userRating} ⭐
+                                </span>
+                            </p>
+                        )}
                         <p>
                             <em>{movie?.Plot}</em>
                         </p>
