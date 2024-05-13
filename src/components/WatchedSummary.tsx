@@ -5,7 +5,6 @@ interface Props {
 }
 
 function WatchedSummary({ watched }: Props) {
-    console.log('watched: ', watched);
     const avgImdbRating = average(
         watched.map(movie => parseInt(movie.imdbRating) || 0)
     );
