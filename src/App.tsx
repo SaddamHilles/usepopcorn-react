@@ -124,7 +124,13 @@ function App() {
             setMovies([]);
             return;
         }
-        fetchMovies();
+        const searchTimer = setTimeout(() => {
+            fetchMovies();
+        }, 3000);
+
+        return () => {
+            clearTimeout(searchTimer);
+        };
     }, [query]);
     return (
         <>
