@@ -19,11 +19,19 @@ import { WatchedMovieData } from './types';
 function App() {
     const [query, setQuery] = useState('interstellar');
     const [movies, setMovies] = useState([]);
+    /*
+        The initial state is set using a function. This function will be executed only once, during the initial render. It's commonly used when the initial state depends on some complex computation or when you want to ensure that the computation of the initial state is lazy (i.e., not computed on every render).
+    */
     const [watched, setWatched] = useState<WatchedMovieData[]>(() => {
         const storedWatched = JSON.parse(localStorage.getItem('watched') || '');
         return storedWatched;
     });
+    /*
+        The initial state is set directly by executing JSON.parse(localStorage.getItem('watched') || ''). This means that every time the component re-renders, this expression will be executed. It's a more straightforward approach but might have performance implications if JSON.parse(localStorage.getItem('watched') || '') is a costly operation.
+    */
+    // const [watched, setWatched] = useState<WatchedMovieData[]>(JSON.parse(localStorage.getItem('watched') || ''));
     const [isLoading, setIsLoading] = useState(false);
+    // console.log('isLoading: ', isLoading);
     const [error, setError] = useState<string | null>(null);
     const [selectedId, setSelectedId] = useState('');
 
@@ -166,7 +174,6 @@ export default App;
 //     {({ onClick }) => <button onClick={onClick}>Upload a file...</button>}
 //   </UploadButton>
 // );
-
 
 // const tempMovieData = [
 //     {
