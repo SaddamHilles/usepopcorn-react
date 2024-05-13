@@ -7,6 +7,8 @@ interface Props {
 }
 
 const MoviesList = ({ movies, onSelectedId }: Props) => {
+
+  
   return (
     <ul className='list list-movies'>
       {movies?.map(movie => (

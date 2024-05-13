@@ -96,6 +96,14 @@ const MovieDetails = ({
         fetchMovieDetails();
     }, [selectedId]);
 
+    useEffect(() => {
+        document.title = `Movie | ${movie?.Title}`;
+
+        return () => {
+            document.title = 'usePopcorn';
+        };
+    }, [movie]);
+
     return (
         <div className="details">
             {isLoading ? (
@@ -162,7 +170,7 @@ const MovieDetails = ({
                                     fontWeight: 'bold',
                                     backgroundColor: 'whitesmoke',
                                     borderRadius: '8px',
-                                    padding: '1rem 2rem'
+                                    padding: '1rem 2rem',
                                 }}>
                                 You rated this movie{' '}
                                 <span
