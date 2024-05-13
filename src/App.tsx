@@ -125,8 +125,9 @@ function App() {
             return;
         }
         const searchTimer = setTimeout(() => {
+            handleCloseMovie()
             fetchMovies();
-        }, 3000);
+        }, 1000);
 
         return () => {
             clearTimeout(searchTimer);

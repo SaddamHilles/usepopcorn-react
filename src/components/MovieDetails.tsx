@@ -104,6 +104,20 @@ const MovieDetails = ({
         };
     }, [movie]);
 
+    useEffect(() => {
+        const handleKeyPressed = (e: KeyboardEvent) => {
+            if (e.code === 'Escape') {
+                onCloseMovie();
+                console.log(e.code);
+            }
+        };
+        document.addEventListener('keydown', handleKeyPressed);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyPressed);
+        };
+    }, [onCloseMovie]);
+
     return (
         <div className="details">
             {isLoading ? (
