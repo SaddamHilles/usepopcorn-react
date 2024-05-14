@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { OMDB_API_KEY } from '../utils/apiKeys';
 import axios from 'axios';
 import { Rating } from 'react-simple-star-rating';
@@ -53,6 +53,8 @@ const MovieDetails = ({
     const [movie, setMovie] = useState<MovieData>();
     const [isLoading, setIsLoading] = useState(false);
     const [userRating, setUserRating] = useState(0);
+    const countRef = useRef(0);
+    const isWatched = watched.find(movie => movie.imdbID === selectedId);
 
     function handleAdd() {
         const newWatchedMovie: WatchedMovieData = {
@@ -63,6 +65,7 @@ const MovieDetails = ({
             Title: movie?.Title || '',
             userRating: userRating,
             Year: movie?.Year || '',
+            countRatingDecisions: countRef.current,
         };
         const op = onAddWatched(newWatchedMovie);
         if (op === -1) {
@@ -76,7 +79,11 @@ const MovieDetails = ({
         setUserRating(rating);
     }
 
-    const isWatched = watched.find(movie => movie.imdbID === selectedId);
+    useEffect(() => {
+        if (userRating) {
+            countRef.current++;
+        }
+    }, [userRating]);
 
     useEffect(() => {
         const fetchMovieDetails = async () => {

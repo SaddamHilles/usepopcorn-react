@@ -23,7 +23,9 @@ function App() {
         The initial state is set using a function. This function will be executed only once, during the initial render. It's commonly used when the initial state depends on some complex computation or when you want to ensure that the computation of the initial state is lazy (i.e., not computed on every render).
     */
     const [watched, setWatched] = useState<WatchedMovieData[]>(() => {
-        const storedWatched = JSON.parse(localStorage.getItem('watched') || '');
+        const storedWatched = JSON.parse(
+            localStorage.getItem('watched') || '[]'
+        );
         return storedWatched;
     });
     /*

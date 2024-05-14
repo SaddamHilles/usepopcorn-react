@@ -13,4 +13,5 @@ export interface WatchedMovieData {
   runtime: string;
   imdbRating: string;
   userRating: number;
+  countRatingDecisions: number;
 }
