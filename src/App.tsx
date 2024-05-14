@@ -1,7 +1,7 @@
 // import { Uploader } from 'uploader'; // Installed by "react-uploader".
 // import { UploadButton } from 'react-uploader';
 // import Main from './components/Main';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Navbar from './components/Navbar';
 import NumResults from './components/NumResults';
 import Main from './components/Main';
@@ -13,30 +13,31 @@ import Loader from './components/Loader';
 import ErrorMessage from './components/ErrorMessage';
 import Search from './components/Search';
 import MovieDetails from './components/MovieDetails';
-import { OMDB_API_KEY } from './utils/apiKeys';
 import { WatchedMovieData } from './types';
+import useFetchMovies from './hooks/useFetchMovies';
+import useLocalStorage from './hooks/useLocalStorage';
 
 function App() {
     const [query, setQuery] = useState('interstellar');
-    const [movies, setMovies] = useState([]);
     /*
-        The initial state is set using a function. This function will be executed only once, during the initial render. It's commonly used when the initial state depends on some complex computation or when you want to ensure that the computation of the initial state is lazy (i.e., not computed on every render).
+    The initial state is set using a function. This function will be executed only once, during the initial render. It's commonly used when the initial state depends on some complex computation or when you want to ensure that the computation of the initial state is lazy (i.e., not computed on every render).
     */
-    const [watched, setWatched] = useState<WatchedMovieData[]>(() => {
-        const storedWatched = JSON.parse(
-            localStorage.getItem('watched') || '[]'
-        );
-        return storedWatched;
-    });
+//    const [watched, setWatched] = useState<WatchedMovieData[]>([]);
+   const {data: watched, setData: setWatched, isLoading: isLoadingStorage} = useLocalStorage<WatchedMovieData[]>([], 'watched');
+
+    // useEffect(() => {
+    //     setWatched(data);
+    // }, [data]);
     /*
-        The initial state is set directly by executing JSON.parse(localStorage.getItem('watched') || ''). This means that every time the component re-renders, this expression will be executed. It's a more straightforward approach but might have performance implications if JSON.parse(localStorage.getItem('watched') || '') is a costly operation.
+    The initial state is set directly by executing JSON.parse(localStorage.getItem('watched') || ''). This means that every time the component re-renders, this expression will be executed. It's a more straightforward approach but might have performance implications if JSON.parse(localStorage.getItem('watched') || '') is a costly operation.
     */
     // const [watched, setWatched] = useState<WatchedMovieData[]>(JSON.parse(localStorage.getItem('watched') || ''));
-    const [isLoading, setIsLoading] = useState(false);
-    // console.log('isLoading: ', isLoading);
-    const [error, setError] = useState<string | null>(null);
     const [selectedId, setSelectedId] = useState('');
-
+    const handleCloseMovieCallback = useCallback(handleCloseMovie, []);
+    const { movies, isLoading, error } = useFetchMovies({
+        query,
+        callback: handleCloseMovieCallback,
+    });
     function handleSelectedId(id: string) {
         setSelectedId(prev => (prev === id ? '' : id));
     }
@@ -65,50 +66,10 @@ function App() {
         setWatched(filteredWatchedMovies);
     }
 
-    useEffect(() => {
-        const fetchMovies = async () => {
-            try {
-                setIsLoading(true);
-                setError(null);
-                const result = await fetch(
-                    `http://www.omdbapi.com/?apikey=${OMDB_API_KEY}&s=${
-                        query || 'interstellar'
-                    }`
-                );
-                if (!result.ok) {
-                    throw new Error('Failed to fetch movies!');
-                }
-                const data = await result.json();
-                if (data.Response === 'False') {
-                    throw new Error('Movie Not fount!');
-                }
-                setMovies(data.Search);
-            } catch (error) {
-                setError((error as Error).message);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        if (query.length < 3) {
-            setError(null);
-            setMovies([]);
-            return;
-        }
-        const searchTimer = setTimeout(() => {
-            handleCloseMovie();
-            fetchMovies();
-        }, 1000);
-
-        return () => {
-            clearTimeout(searchTimer);
-        };
-    }, [query]);
-
-    useEffect(() => {
-        if (watched.length)
-            localStorage.setItem('watched', JSON.stringify(watched));
-    }, [watched]);
+    // useEffect(() => {
+    //     if (watched.length)
+    //         localStorage.setItem('watched', JSON.stringify(watched));
+    // }, [watched]);
 
     // useEffect(() => {
     //     const getwatched = JSON.parse(localStorage.getItem('watched') || '');
@@ -143,7 +104,7 @@ function App() {
                             onAddWatched={handleAddWatched}
                             watched={watched}
                         />
-                    ) : (
+                    ) : !isLoadingStorage && (
                         <>
                             <WatchedSummary watched={watched} />
                             <WatchedList
