@@ -11,7 +11,7 @@ const useFetchMovies = ({ query, callback }: Props) => {
     const [movies, setMovies] = useState([]);
 
     useEffect(() => {
-      callback?.()
+        callback?.();
         const fetchMovies = async () => {
             try {
                 setIsLoading(true);

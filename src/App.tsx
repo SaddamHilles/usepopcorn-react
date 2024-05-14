@@ -22,8 +22,12 @@ function App() {
     /*
     The initial state is set using a function. This function will be executed only once, during the initial render. It's commonly used when the initial state depends on some complex computation or when you want to ensure that the computation of the initial state is lazy (i.e., not computed on every render).
     */
-//    const [watched, setWatched] = useState<WatchedMovieData[]>([]);
-   const {data: watched, setData: setWatched, isLoading: isLoadingStorage} = useLocalStorage<WatchedMovieData[]>([], 'watched');
+    //    const [watched, setWatched] = useState<WatchedMovieData[]>([]);
+    const {
+        data: watched,
+        setData: setWatched,
+        isLoading: isLoadingStorage,
+    } = useLocalStorage<WatchedMovieData[]>([], 'watched');
 
     // useEffect(() => {
     //     setWatched(data);
@@ -104,14 +108,16 @@ function App() {
                             onAddWatched={handleAddWatched}
                             watched={watched}
                         />
-                    ) : !isLoadingStorage && (
-                        <>
-                            <WatchedSummary watched={watched} />
-                            <WatchedList
-                                watched={watched}
-                                onDeleteWatched={handleDeleteWatched}
-                            />
-                        </>
+                    ) : (
+                        !isLoadingStorage && (
+                            <>
+                                <WatchedSummary watched={watched} />
+                                <WatchedList
+                                    watched={watched}
+                                    onDeleteWatched={handleDeleteWatched}
+                                />
+                            </>
+                        )
                     )}
                 </Box>
             </Main>
